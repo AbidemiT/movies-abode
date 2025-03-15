@@ -8,7 +8,7 @@ import { fetchMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
 
 const Search = () => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const {
     data: movies,
@@ -16,24 +16,25 @@ const Search = () => {
     error,
     refetch: loadMovies,
     reset,
-  } = useFetch(() => fetchMovies({ query: searchQuery }), false);  
+  } = useFetch(() => fetchMovies({ query: searchQuery }), false);
 
   useEffect(() => {
-    const func = async () => { 
+    // Debounce search query
+    const timeoutId = setTimeout(async () => {
       if (searchQuery.trim()) {
         await loadMovies();
       } else {
         reset();
       }
-    };
+    }, 500);
 
-    func();
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
   };
-  
+
   return (
     <View className="flex-1 bg-primary">
       <Image
@@ -85,14 +86,12 @@ const Search = () => {
               </Text>
             )}
 
-            {
-              !loading && !error && searchQuery.trim() && movies?.length > 0 && (
-                  <Text className="text-xl text-white font-bold">
-                    Search results for{' '}
-                    <Text className="text-accent">{searchQuery}</Text>
-                  </Text>
-                )
-            }
+            {!loading && !error && searchQuery.trim() && movies?.length > 0 && (
+              <Text className="text-xl text-white font-bold">
+                Search results for{" "}
+                <Text className="text-accent">{searchQuery}</Text>
+              </Text>
+            )}
           </>
         }
       />
